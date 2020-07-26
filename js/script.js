@@ -1,31 +1,7 @@
 const jobRole = document.querySelector('#title');
 const tshirtDesign = document.querySelector('#design');
 const colorSelection = document.querySelector('#color');
-const tshirtColors = [
-    {
-        design: 'Select Theme',
-        colors: ['please-select'],
-        content: ['Please select a T-shirt theme']
-    },
-    {
-        design: 'js puns',
-        colors: ['cornflowerblue', 'darkslategrey', 'gold'],
-        content: [
-                    'Cornflower Blue (JS Puns shirt only)',
-                    'Dark Slate Grey (JS Puns shirt only)',
-                    'Gold (JS Puns shirt only)'
-                ]
-    },
-    {
-        design: 'heart js',
-        colors: ['tomato', 'steelblue', 'dimgrey'],
-        content: [
-                    'Tomato (I &#9829; JS shirt only)',
-                    'Steel Blue (I &#9829; JS shirt only)',
-                    'Dim Grey (I &#9829; JS shirt only)'
-                ]
-    }
-];
+const tshirtColors = [];
 
 // focuses on the first text input field
 const focusFirstInput = () => {
@@ -53,16 +29,43 @@ const changeOtherRole = () => {
     }
 }
 
-// insert please select design into tshirt colors
-const insertDesignNotChosen = () => {
-    const colorSelection = document.querySelector('#color');
-    const firstColor = colorSelection.firstElementChild;
-    const pleaseSelect = document.createElement('option');
-    pleaseSelect.textContent = tshirtColors[0].content;
-    pleaseSelect.value = tshirtColors[0].colors;
+// build tshirtColor array with design, colors, and content
+const getColors = () => {
+    const colors = document.querySelector('#color').children;
 
-    colorSelection.insertBefore(pleaseSelect, firstColor);
-    colorSelection.value = pleaseSelect.value;
+    const selectTheme = {
+        design: 'Select Theme',
+        colors: ['please-select'],
+        content: ['Please select a T-shirt theme']
+    };
+
+    tshirtColors.push(selectTheme);
+
+    const jsPuns = {
+        design: 'js puns',
+        colors: [],
+        content: []
+    };
+
+    const heartJs = {
+        design: 'heart js',
+        colors: [],
+        content: []
+    }
+    
+    for (let i=0; i<colors.length; i++) {
+        const color = colors[i];
+        if (color.textContent.includes('(JS Puns shirt only)')) {
+            jsPuns.colors.push(color.value);
+            jsPuns.content.push(color.textContent);
+        } else if (color.textContent.includes('(I ♥ JS shirt only)')) {
+            heartJs.colors.push(color.value);
+            heartJs.content.push(color.textContent);
+        }
+    }
+
+    tshirtColors.push(jsPuns);
+    tshirtColors.push(heartJs);
 }
 
 // change TShirt Color Menu
@@ -80,7 +83,7 @@ const changeTshirtColors = design => {
 
 focusFirstInput();
 changeOtherRole();
-insertDesignNotChosen();
+getColors();
 changeTshirtColors('Select Theme');
 
 jobRole.addEventListener('change', () => {
