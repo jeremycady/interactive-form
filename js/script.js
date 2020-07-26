@@ -1,6 +1,6 @@
 const jobRole = document.querySelector('#title');
 const tshirtDesign = document.querySelector('#design');
-const tshirtColors = document.querySelector('#color');
+const tshirtColors = document.querySelector('#color').children;
 
 // focuses on the first text input field
 const focusFirstInput = () => {
