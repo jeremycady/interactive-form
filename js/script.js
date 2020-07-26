@@ -1,5 +1,7 @@
 const job = document.querySelector('#title');
 const colorSelect = document.querySelector('#color');
+const activities = document.querySelectorAll('input[type=checkbox]');
+let checkedActivities = [];
 
 // focuses on the first text input field
 const focusFirstInput = () => {
@@ -39,6 +41,14 @@ const insertDesignNotChosen = () => {
     colorSelect.value = pleaseSelect.value;
 }
 
+const insertTotal = () => {
+    const h3 = document.createElement('h3');
+    const classActivities = document.querySelector('.activities');
+    h3.textContent = 'Total: $0.00';
+
+    classActivities.appendChild(h3);
+}
+
 // hide/unhide colors in color menu
 const changeColor = (colors, include, select) => {
     for (let i=0; i<colors.length; i++) {
@@ -74,7 +84,8 @@ const disableActivity = (activity, opacity, disable) => {
 }
 
 // push checked activites into array to be compared
-const checkActivities = (checkedActivities, activities) => {
+const checkActivities = () => {
+    checkedActivities = [];
     for (let i=0; i<activities.length; i++) {
         const activity = activities[i];
         if (activity.checked) {
@@ -88,16 +99,13 @@ const checkActivities = (checkedActivities, activities) => {
 }
 
 // disables activites that are at the same date and time of activity selected
-const selectActivities = (e) => {
-    const activities = document.querySelectorAll('input[type=checkbox]');
-    const checkedActivities = [];
-
+const selectActivities = () => {
     for (let i=0; i<activities.length; i++) {
         const activity = activities[i];
         disableActivity(activity, 1, false);
     }
 
-    checkActivities(checkedActivities, activities);
+    checkActivities();
 
     for (let i=0; i<activities.length; i++) {
         const activity = activities[i];
@@ -105,7 +113,7 @@ const selectActivities = (e) => {
         if (!activity.checked) {
             for (let i=0; i<checkedActivities.length; i++) {
                 const checkedActivity = checkedActivities[i];
-                if (checkedActivity.time === activity.attributes[2].value) {
+                if (checkedActivity.time === activity.getAttribute('data-day-and-time')) {
                     disableActivity(activity, .5, true);
                 }
             }
@@ -113,9 +121,24 @@ const selectActivities = (e) => {
     }
 }
 
+// total checked activities
+const totalActivities = () => {
+    const h3 = document.querySelector('h3');
+    let total = 0;
+
+    for (let i=0; i<activities.length; i++) {
+        const activity = activities[i];
+        if (activity.checked) {
+            total += parseInt(activity.getAttribute('data-cost'));
+        }
+    }
+    h3.textContent = `Total: $ ${total}.00`;
+}
+
 focusFirstInput();
 changeOtherRole();
 insertDesignNotChosen();
+insertTotal();
 changeDesign('Select Theme');
 
 job.addEventListener('change', () => {
@@ -128,5 +151,6 @@ document.querySelector('#design').addEventListener('change', e => {
 });
 
 document.querySelector('.activities').addEventListener('change', e=> {
-    selectActivities(e);
+    selectActivities();
+    totalActivities();
 });
