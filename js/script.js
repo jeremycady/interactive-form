@@ -53,6 +53,7 @@ const insertDesignNotChosen = () => {
     colorSelect.value = pleaseSelect.value;
 }
 
+// inserts total field in activity section
 const insertTotal = () => {
     const h3 = document.createElement('h3');
     const classActivities = document.querySelector('.activities');
@@ -61,15 +62,18 @@ const insertTotal = () => {
     classActivities.appendChild(h3);
 }
 
+// removes the select payment option and defaults to cc
 const removePayment = () => {
     const selectMethod = paymentSelect.firstElementChild;
     paymentSelect.removeChild(selectMethod);
 }
 
+// disables the submit button
 const disableButton = () => {
     button.disabled = true;
 }
 
+// inserts error div before email input and hides until validation
 const insertError = () => {
     const parentMail = mail.parentNode;
     mailError.style.color = 'darkred';
@@ -228,7 +232,6 @@ const error = () => {
         mail.style.borderColor = 'darkred';
     } 
 }
-
 
 focusFirstInput();
 changeOtherRole();
