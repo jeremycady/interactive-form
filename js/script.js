@@ -2,6 +2,8 @@ const job = document.querySelector('#title');
 const colorSelect = document.querySelector('#color');
 const activities = document.querySelectorAll('input[type=checkbox]');
 let checkedActivities = [];
+const paymentSelect = document.querySelector('#payment');
+const button = document.querySelector('button');
 
 // focuses on the first text input field
 const focusFirstInput = () => {
@@ -47,6 +49,15 @@ const insertTotal = () => {
     h3.textContent = 'Total: $0.00';
 
     classActivities.appendChild(h3);
+}
+
+const removePayment = () => {
+    const selectMethod = paymentSelect.firstElementChild;
+    paymentSelect.removeChild(selectMethod);
+}
+
+const disableButton = () => {
+    button.disabled = true;
 }
 
 // hide/unhide colors in color menu
@@ -135,11 +146,30 @@ const totalActivities = () => {
     h3.textContent = `Total: $ ${total}.00`;
 }
 
+const payment = paymentType => {
+    const selectedPayment = paymentType.replace(' ','-');
+    const paymentDivs = document.querySelectorAll('div');
+
+    for (let i=0; i<paymentDivs.length; i++) {
+        if (paymentDivs[i].id === 'credit-card' || paymentDivs[i].id ===  'paypal' || paymentDivs[i].id ===  'bitcoin') {
+            if (selectedPayment !== paymentDivs[i].id) {
+                paymentDivs[i].hidden = true;
+            } else {
+                paymentDivs[i].hidden = false;
+            }
+        }
+    }
+}
+
 focusFirstInput();
 changeOtherRole();
 insertDesignNotChosen();
 insertTotal();
+removePayment();
 changeDesign('Select Theme');
+payment('credit card');
+paymentSelect.value = 'credit card';
+disableButton();
 
 job.addEventListener('change', () => {
     changeOtherRole();
@@ -150,7 +180,12 @@ document.querySelector('#design').addEventListener('change', e => {
     changeDesign(selectDesign);
 });
 
-document.querySelector('.activities').addEventListener('change', e=> {
+document.querySelector('.activities').addEventListener('change', () => {
     selectActivities();
     totalActivities();
+});
+
+paymentSelect.addEventListener('change', e => {
+    const paymentType = e.target.value;
+    payment(paymentType);
 });
