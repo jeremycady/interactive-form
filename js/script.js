@@ -4,6 +4,14 @@ const activities = document.querySelectorAll('input[type=checkbox]');
 let checkedActivities = [];
 const paymentSelect = document.querySelector('#payment');
 const button = document.querySelector('button');
+let validation = {
+    name: false,
+    mail: false,
+    activities: false, 
+    ccNum: false,
+    zip: false,
+    cvv: false
+};
 
 // focuses on the first text input field
 const focusFirstInput = () => {
@@ -146,6 +154,7 @@ const totalActivities = () => {
     h3.textContent = `Total: $ ${total}.00`;
 }
 
+// hide the payment options not selected
 const payment = paymentType => {
     const selectedPayment = paymentType.replace(' ','-');
     const paymentDivs = document.querySelectorAll('div');
@@ -160,6 +169,39 @@ const payment = paymentType => {
         }
     }
 }
+
+// validate form inputs
+const isValid = input => {
+    if (input.id === 'name') {
+        validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
+    } else if (input.id === 'mail') {
+        validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
+    } else if (input.id === 'cc-num') {
+        validation.ccNum = /(?:^\d{13}$)|(?:^\d{16}$)/.test(input.value);
+    } else if (input.id === 'zip') {
+        validation.zip = /^\d{5}$/.test(input.value);
+    } else if (input.id === 'cvv') {
+        validation.cvv = /^\d{3}$/.test(input.value);
+    } else if (checkedActivities.length > 0) {
+        validation.activities = true;
+    } else if (checkActivities.length === 0) {
+        validation.activities = false;
+    }
+}
+
+// if inputs are valid enable button
+const validated = () => {
+    console.log(validation);
+    if (validation.name && validation.mail && validation.activities && validation.ccNum && validation.zip && validation.cvv) {
+        button.disabled = false;
+    } else if (validation.name && validation.mail && validation.activities && paymentSelect.value !== 'credit card') {
+        button.disabled = false;
+    } else {
+        disableButton();
+    }
+    console.log(`Button Disabled: ${button.disabled}`)
+}
+
 
 focusFirstInput();
 changeOtherRole();
@@ -176,16 +218,43 @@ job.addEventListener('change', () => {
 });
 
 document.querySelector('#design').addEventListener('change', e => {
-    const selectDesign = e.target.value;
-    changeDesign(selectDesign);
+    changeDesign(e.target.value);
 });
 
-document.querySelector('.activities').addEventListener('change', () => {
+document.querySelector('.activities').addEventListener('change', e => {
     selectActivities();
     totalActivities();
+    isValid(e.target);
+    validated();
 });
 
 paymentSelect.addEventListener('change', e => {
-    const paymentType = e.target.value;
-    payment(paymentType);
+    payment(e.target.value);
+    isValid(e.target);
+    validated();
+});
+
+document.querySelector('#name').addEventListener("input", e => {
+    isValid(e.target);
+    validated();
+});
+
+document.querySelector('#mail').addEventListener("input", e => {
+    isValid(e.target);
+    validated();
+});
+
+document.querySelector('#cc-num').addEventListener("input", e => {
+    isValid(e.target);
+    validated();
+});
+
+document.querySelector('#zip').addEventListener("input", e => {
+    isValid(e.target);
+    validated();
+});
+
+document.querySelector('#cvv').addEventListener("input", e => {
+    isValid(e.target);
+    validated();
 });
