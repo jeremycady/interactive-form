@@ -4,6 +4,8 @@ const activities = document.querySelectorAll('input[type=checkbox]');
 let checkedActivities = [];
 const paymentSelect = document.querySelector('#payment');
 const button = document.querySelector('button');
+const mail = document.querySelector('#mail');
+const mailError = document.createElement('div');
 let validation = {
     name: false,
     mail: false,
@@ -66,6 +68,17 @@ const removePayment = () => {
 
 const disableButton = () => {
     button.disabled = true;
+}
+
+const insertError = () => {
+    const parentMail = mail.parentNode;
+    mailError.style.color = 'darkred';
+    mailError.style.backgroundColor = 'tomato';
+    mailError.style.padding = '10px';
+    mailError.hidden = true;
+    mailError.display = 'inline-block';
+
+    parentMail.insertBefore(mailError, mail);
 }
 
 // hide/unhide colors in color menu
@@ -176,6 +189,7 @@ const isValid = input => {
         validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
     } else if (input.id === 'mail') {
         validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
+        error();
     } else if (input.id === 'cc-num') {
         validation.ccNum = /(?:^\d{13}$)|(?:^\d{16}$)/.test(input.value);
     } else if (input.id === 'zip') {
@@ -191,7 +205,6 @@ const isValid = input => {
 
 // if inputs are valid enable button
 const validated = () => {
-    console.log(validation);
     if (validation.name && validation.mail && validation.activities && validation.ccNum && validation.zip && validation.cvv) {
         button.disabled = false;
     } else if (validation.name && validation.mail && validation.activities && paymentSelect.value !== 'credit card') {
@@ -199,7 +212,21 @@ const validated = () => {
     } else {
         disableButton();
     }
-    console.log(`Button Disabled: ${button.disabled}`)
+}
+
+// make error message on email field
+const error = () => {
+    mailError.hidden = true;
+    mail.style.borderColor = '';
+    if (mail.value.length === 0) {
+        mailError.hidden = false;
+        mailError.textContent = 'Field required';
+        mail.style.borderColor = 'darkred';
+    } else if (!validation.mail) {
+        mailError.hidden = false;
+        mailError.textContent = 'Format required: email@example.com';
+        mail.style.borderColor = 'darkred';
+    } 
 }
 
 
@@ -207,6 +234,7 @@ focusFirstInput();
 changeOtherRole();
 insertDesignNotChosen();
 insertTotal();
+insertError();
 removePayment();
 changeDesign('Select Theme');
 payment('credit card');
@@ -239,7 +267,7 @@ document.querySelector('#name').addEventListener("input", e => {
     validated();
 });
 
-document.querySelector('#mail').addEventListener("input", e => {
+mail.addEventListener("input", e => {
     isValid(e.target);
     validated();
 });
