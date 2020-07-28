@@ -1,5 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
+// document.addEventListener('DOMContentLoaded', () => {
     const job = document.querySelector('#title');
+    const colorDiv = document.querySelector('#colors-js-puns');
+    const designSelect = document.querySelector('#design');
     const colorSelect = document.querySelector('#color');
     const activities = document.querySelectorAll('input[type=checkbox]');
     let checkedActivities = [];
@@ -42,16 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // insert please select design into tshirt colors
-    const insertDesignNotChosen = () => {
-        const firstColor = colorSelect.firstElementChild;
-        const pleaseSelect = document.createElement('option');
-
-        pleaseSelect.textContent = 'Please select a T-shirt theme';
-        pleaseSelect.value = 'please-select';
-
-        colorSelect.insertBefore(pleaseSelect, firstColor);
-        colorSelect.value = pleaseSelect.value;
+    // hide color options on page load
+    const hideColorDiv = () => {
+        console.log(colorDiv);
+        colorDiv.hidden = true;
     }
 
     // inserts total field in activity section
@@ -102,10 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // change tshirt Color Menu with change in design selection
     const changeDesign = tshirtSelection => {
         const colors = colorSelect.children;
-    
-        if (tshirtSelection === 'Select Theme') {
-            changeColor(colors,'Please select','please-select');
-        } else if (tshirtSelection === 'js puns') {
+        const themeSelect = designSelect.firstElementChild;
+        themeSelect.hidden = true;
+        colorDiv.hidden = false;
+        
+        if (tshirtSelection === 'js puns') {
             changeColor(colors,'JS Puns shirt only','cornflowerblue');
         } else if (tshirtSelection === 'heart js') {
             changeColor(colors,'I ♥ JS shirt only','tomato');
@@ -236,11 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     focusFirstInput();
     changeOtherRole();
-    insertDesignNotChosen();
+    hideColorDiv();
     insertTotal();
     insertError();
     removePayment();
-    changeDesign('Select Theme');
     payment('credit card');
     paymentSelect.value = 'credit card';
     disableButton();
@@ -249,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         changeOtherRole();
     });
 
-    document.querySelector('#design').addEventListener('change', e => {
+    design.addEventListener('change', e => {
         changeDesign(e.target.value);
     });
 
@@ -290,4 +286,4 @@ document.addEventListener('DOMContentLoaded', () => {
         isValid(e.target);
         validated();
     });
-});
+// });
