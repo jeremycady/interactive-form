@@ -84,7 +84,6 @@
             createError.display = 'inline-block';
             createError.textContent = 'Field required';
             createError.className = `${key}Error`
-            // errorObjects[key].style.borderColor = 'darkred';
 
             if (key === 'activities') {
                 createError.style.marginBottom = '10px';
@@ -218,28 +217,18 @@
         }
     }
 
-    // if inputs are valid enable button
-    const validated = () => {
-        if (validation.name && validation.mail && validation.activities && validation.ccNum && validation.zip && validation.cvv) {
-            button.disabled = false;
-        } else if (validation.name && validation.mail && validation.activities && paymentSelect.value !== 'credit card') {
-            button.disabled = false;
-        } else {
-            disableButton();
-        }
-    }
-
-    // unhides errors to inputs and prevents submission if error
+    // unhides errors to inputs and prevents submission if
     const submitErrors = (e) => {
         for (let key in validation) {
             const getClass = `${key}Error`;
             const getError = document.querySelector(`.${getClass}`);
-            console.log(getClass);
-            console.log(getError);
+
             if (validation[key]) {
                 getError.hidden = true;
+                errorObjects[key].style.borderColor = '';
             } else {
                 getError.hidden = false;
+                errorObjects[key].style.borderColor = 'darkred';
                 e.preventDefault();
             }
         }
