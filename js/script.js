@@ -7,8 +7,14 @@
     let checkedActivities = [];
     const paymentSelect = document.querySelector('#payment');
     const button = document.querySelector('button');
-    const mail = document.querySelector('#mail');
-    const mailError = document.createElement('div');
+    const errorObjects = {
+        name: document.querySelector('#name'),
+        mail: document.querySelector('#mail'),
+        activities: document.querySelector('.activities'),
+        ccNum: document.querySelector('#cc-num'),
+        zip: document.querySelector('#zip'),
+        cvv: document.querySelector('#cvv')
+    };
     let validation = {
         name: false,
         mail: false,
@@ -46,7 +52,6 @@
 
     // hide color options on page load
     const hideColorDiv = () => {
-        console.log(colorDiv);
         colorDiv.hidden = true;
     }
 
@@ -65,22 +70,30 @@
         paymentSelect.removeChild(selectMethod);
     }
 
-    // disables the submit button
-    const disableButton = () => {
-        button.disabled = true;
-    }
+    // inserts error divs before inputs and hide until validation
+    const insertErrors = () => {
+        for (let key in errorObjects) {
+            const parentOfError = errorObjects[key].parentNode;
+            const childOfError = errorObjects[key].firstElementChild;
+            const createError = document.createElement('div');
+            
+            createError.style.color = 'darkred';
+            createError.style.backgroundColor = 'tomato';
+            createError.style.padding = '10px';
+            createError.hidden = true;
+            createError.display = 'inline-block';
+            createError.textContent = 'Field required';
+            createError.className = `${key}Error`
+            // errorObjects[key].style.borderColor = 'darkred';
 
-    // inserts error div before email input and hides until validation
-    const insertError = () => {
-        const parentMail = mail.parentNode;
-        mailError.style.color = 'darkred';
-        mailError.style.backgroundColor = 'tomato';
-        mailError.style.padding = '10px';
-        mailError.hidden = true;
-        mailError.display = 'inline-block';
-
-        parentMail.insertBefore(mailError, mail);
-    }
+            if (key === 'activities') {
+                createError.style.marginBottom = '10px';
+                errorObjects[key].insertBefore(createError, childOfError);
+            } else {
+                parentOfError.insertBefore(createError, errorObjects[key]);
+            }
+        }
+    };
 
     // hide/unhide colors in color menu
     const changeColor = (colors, include, select) => {
@@ -191,7 +204,7 @@
             validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
         } else if (input.id === 'mail') {
             validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
-            error();
+            getMailError();
         } else if (input.id === 'cc-num') {
             validation.ccNum = /(?:^\d{13}$)|(?:^\d{16}$)/.test(input.value);
         } else if (input.id === 'zip') {
@@ -216,8 +229,27 @@
         }
     }
 
-    // make error message on email field
-    const error = () => {
+    // unhides errors to inputs and prevents submission if error
+    const submitErrors = (e) => {
+        for (let key in validation) {
+            const getClass = `${key}Error`;
+            const getError = document.querySelector(`.${getClass}`);
+            console.log(getClass);
+            console.log(getError);
+            if (validation[key]) {
+                getError.hidden = true;
+            } else {
+                getError.hidden = false;
+                e.preventDefault();
+            }
+        }
+    }
+
+    // make errors message on fields
+    const getMailError = () => {
+        const mail = document.querySelector('#mail');
+        const mailError = document.querySelector('.mailError');
+
         mailError.hidden = true;
         mail.style.borderColor = '';
         if (mail.value.length === 0) {
@@ -235,11 +267,10 @@
     changeOtherRole();
     hideColorDiv();
     insertTotal();
-    insertError();
+    insertErrors();
     removePayment();
     payment('credit card');
     paymentSelect.value = 'credit card';
-    disableButton();
 
     job.addEventListener('change', () => {
         changeOtherRole();
@@ -285,5 +316,9 @@
     document.querySelector('#cvv').addEventListener("input", e => {
         isValid(e.target);
         validated();
+    });
+
+    button.addEventListener('click', (e) => {
+        submitErrors(e);
     });
 // });
