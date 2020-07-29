@@ -1,4 +1,4 @@
-// document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const job = document.querySelector('#title');
     const colorDiv = document.querySelector('#colors-js-puns');
     const designSelect = document.querySelector('#design');
@@ -205,10 +205,8 @@
     const submitErrors = (e) => {
         for (let i=0; i<inputs.length; i++) {
             const input = inputs[i];
-            const getClass = `${input.id}Error`;
-            const getError = document.querySelector(`.${getClass}`);
+            const getError = document.querySelector(`.${input.id}Error`);
 
-            validate(input);
             if (input.id === 'name') {
                 validateInput(input, getError, e);
             } else if (input.id === 'mail') {
@@ -245,6 +243,7 @@
 
     // hide or show errors
     const validateInput = (input, getError, e) => {
+        validate(input);
         if (validation[input.id]) {
             removeError(input.id, getError);
         } else {
@@ -254,6 +253,8 @@
 
     // make errors message on fields
     const validateMail = (input, getError, e) => {
+        validate(input);
+
         if (errorObjects[input.id].value.length === 0) {
             applyError(input.id, getError, e);
             getError.textContent = 'Field required';
@@ -297,17 +298,22 @@
     document.querySelector('.activities').addEventListener('change', e => {
         selectActivities();
         totalActivities();
+        validActivities(e);
     });
 
     paymentSelect.addEventListener('change', e => {
         payment(e.target.value);
     });
 
-    // errorObjects.mail.addEventListener("input", e => {
-    //     validateMail();
-    // });
+    document.querySelector('form').addEventListener('input', e => {
+        if (e.target.id === 'mail') {
+            validateMail(e.target, document.querySelector(`.${e.target.id}Error`), e);
+        } else if (e.target.id === 'name' || e.target.id === 'cc-num' || e.target.id === 'zip' || e.target.id === 'cvv') {
+            validateInput(e.target, document.querySelector(`.${e.target.id}Error`), e);
+        }
+    });
 
     button.addEventListener('click', (e) => {
         submitErrors(e);
     });
-// });
+});
