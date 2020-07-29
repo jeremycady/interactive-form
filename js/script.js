@@ -191,6 +191,45 @@
         }
     }
 
+    // validate form inputs, does not include activities
+    const validate = (input) => {
+        validation = {};
+        validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
+        validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
+        validation['cc-num'] = /(?:^\d{13,16}$)/.test(input.value);
+        validation.zip = /^\d{5}$/.test(input.value);
+        validation.cvv = /^\d{3}$/.test(input.value);
+    }
+
+    // run validation on submission
+    const submitErrors = (e) => {
+        for (let i=0; i<inputs.length; i++) {
+            const input = inputs[i];
+            const getClass = `${input.id}Error`;
+            const getError = document.querySelector(`.${getClass}`);
+
+            validate(input);
+            if (input.id === 'name') {
+                validateInput(input, getError, e);
+            } else if (input.id === 'mail') {
+                validateMail(input, getError, e);
+            } else if (input.id === 'cc-num') {
+                if (paymentSelect.value === 'credit card') { 
+                    validateInput(input, getError, e);
+                }
+            } else if (input.id === 'zip') {
+                if (paymentSelect.value === 'credit card') {
+                    validateInput(input, getError, e);
+                }
+            } else if (input.id === 'cvv') {
+                if (paymentSelect.value === 'credit card') {
+                    validateInput(input, getError, e);
+                }
+            }
+        }
+        validActivities(e);
+    }
+
     // remove error style 
     const removeError = (key, getError) => {
         getError.hidden = true;
@@ -204,75 +243,26 @@
         e.preventDefault();
     }
 
-    // validate form inputs, does not include activities
-    const validate = (input) => {
-        validation = {};
-        validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
-        validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
-        validation['cc-num'] = /(?:^\d{13,16}$)/.test(input.value);
-        validation.zip = /^\d{5}$/.test(input.value);
-        validation.cvv = /^\d{3}$/.test(input.value);
-    }
-
-    // hide/show errors on submission
-    const submitErrors = (e) => {
-        for (let i=0; i<inputs.length; i++) {
-            const input = inputs[i];
-            const getClass = `${input.id}Error`;
-            const getError = document.querySelector(`.${getClass}`);
-
-            validate(input);
-            if (input.id === 'name') {
-                if (validation.name) {
-                    removeError(input.id, getError);
-                } else {
-                    applyError(input.id, getError, e);
-                }
-            } else if (input.id === 'mail') {
-                if (errorObjects[input.id].value.length === 0) {
-                    applyError(input.id, getError, e);
-                    getError.textContent = 'Field required';
-                } else if (validation.mail) {
-                    removeError(input.id, getError);
-                } else {
-                    applyError(input.id, getError, e);
-                    getError.textContent = 'Format required: email@example.com';
-                }
-            } else if (input.id === 'cc-num') {
-                if (paymentSelect.value === 'credit card') { 
-                    if (validation['cc-num']) {
-                        removeError(input.id, getError);
-                    } else {
-                        applyError(input.id, getError, e);
-                    }
-                }
-            } else if (input.id === 'zip') {
-                if (validation.zip) {
-                    removeError(input.id, getError);
-                } else {
-                    applyError(input.id, getError, e);
-                }
-            } else if (input.id === 'cvv') {
-                if (validation.cvv) {
-                    removeError(input.id, getError);
-                } else {
-                    applyError(input.id, getError, e);
-                }
-            }
+    // hide or show errors
+    const validateInput = (input, getError, e) => {
+        if (validation[input.id]) {
+            removeError(input.id, getError);
+        } else {
+            applyError(input.id, getError, e);
         }
-        validActivities(e);
     }
 
     // make errors message on fields
-    const validateMail = (key, getError, e) => {
-        removeError(key, getError);
-        if (errorObjects[key].value.length === 0) {
-            applyError(key, getError, e);
+    const validateMail = (input, getError, e) => {
+        if (errorObjects[input.id].value.length === 0) {
+            applyError(input.id, getError, e);
             getError.textContent = 'Field required';
-        } else if (!validation.mail) {
-            applyError(key, getError, e);
+        } else if (validation.mail) {
+            removeError(input.id, getError);
+        } else {
+            applyError(input.id, getError, e);
             getError.textContent = 'Format required: email@example.com';
-        } 
+        }
     }
 
     // validates activities 
