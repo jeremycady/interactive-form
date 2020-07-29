@@ -5,24 +5,18 @@
     const colorSelect = document.querySelector('#color');
     const activities = document.querySelectorAll('input[type=checkbox]');
     let checkedActivities = [];
+    const inputs = document.querySelectorAll('input');
     const paymentSelect = document.querySelector('#payment');
     const button = document.querySelector('button');
     const errorObjects = {
         name: document.querySelector('#name'),
         mail: document.querySelector('#mail'),
         activities: document.querySelector('.activities'),
-        ccNum: document.querySelector('#cc-num'),
+        'cc-num': document.querySelector('#cc-num'),
         zip: document.querySelector('#zip'),
         cvv: document.querySelector('#cvv')
     };
-    let validation = {
-        name: false,
-        mail: false,
-        activities: false, 
-        ccNum: false,
-        zip: false,
-        cvv: false
-    };
+    let validation = {};
 
     // focuses on the first text input field
     const focusFirstInput = () => {
@@ -197,59 +191,100 @@
         }
     }
 
-    // validate form inputs
-    const isValid = input => {
-        if (input.id === 'name') {
-            validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
-        } else if (input.id === 'mail') {
-            validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
-            getMailError();
-        } else if (input.id === 'cc-num') {
-            validation.ccNum = /(?:^\d{13}$)|(?:^\d{16}$)/.test(input.value);
-        } else if (input.id === 'zip') {
-            validation.zip = /^\d{5}$/.test(input.value);
-        } else if (input.id === 'cvv') {
-            validation.cvv = /^\d{3}$/.test(input.value);
-        } else if (checkedActivities.length > 0) {
-            validation.activities = true;
-        } else if (checkActivities.length === 0) {
-            validation.activities = false;
-        }
+    // remove error style 
+    const removeError = (key, getError) => {
+        getError.hidden = true;
+        errorObjects[key].style.borderColor = '';
     }
 
-    // unhides errors to inputs and prevents submission if
+    // apply error style
+    const applyError = (key, getError, e) => {
+        getError.hidden = false;
+        errorObjects[key].style.borderColor = 'darkred';
+        e.preventDefault();
+    }
+
+    // validate form inputs, does not include activities
+    const validate = (input) => {
+        validation = {};
+        validation.name = /^[a-z]+$/.test(input.value.toLowerCase());
+        validation.mail = /^[^@]+@[^@.]+\.[a-z]+$/i.test(input.value);
+        validation['cc-num'] = /(?:^\d{13,16}$)/.test(input.value);
+        validation.zip = /^\d{5}$/.test(input.value);
+        validation.cvv = /^\d{3}$/.test(input.value);
+    }
+
+    // hide/show errors on submission
     const submitErrors = (e) => {
-        for (let key in validation) {
-            const getClass = `${key}Error`;
+        for (let i=0; i<inputs.length; i++) {
+            const input = inputs[i];
+            const getClass = `${input.id}Error`;
             const getError = document.querySelector(`.${getClass}`);
 
-            if (validation[key]) {
-                getError.hidden = true;
-                errorObjects[key].style.borderColor = '';
-            } else {
-                getError.hidden = false;
-                errorObjects[key].style.borderColor = 'darkred';
-                e.preventDefault();
+            validate(input);
+            if (input.id === 'name') {
+                if (validation.name) {
+                    removeError(input.id, getError);
+                } else {
+                    applyError(input.id, getError, e);
+                }
+            } else if (input.id === 'mail') {
+                if (errorObjects[input.id].value.length === 0) {
+                    applyError(input.id, getError, e);
+                    getError.textContent = 'Field required';
+                } else if (validation.mail) {
+                    removeError(input.id, getError);
+                } else {
+                    applyError(input.id, getError, e);
+                    getError.textContent = 'Format required: email@example.com';
+                }
+            } else if (input.id === 'cc-num') {
+                if (paymentSelect.value === 'credit card') { 
+                    if (validation['cc-num']) {
+                        removeError(input.id, getError);
+                    } else {
+                        applyError(input.id, getError, e);
+                    }
+                }
+            } else if (input.id === 'zip') {
+                if (validation.zip) {
+                    removeError(input.id, getError);
+                } else {
+                    applyError(input.id, getError, e);
+                }
+            } else if (input.id === 'cvv') {
+                if (validation.cvv) {
+                    removeError(input.id, getError);
+                } else {
+                    applyError(input.id, getError, e);
+                }
             }
         }
+        validActivities(e);
     }
 
     // make errors message on fields
-    const getMailError = () => {
-        const mail = document.querySelector('#mail');
-        const mailError = document.querySelector('.mailError');
-
-        mailError.hidden = true;
-        mail.style.borderColor = '';
-        if (mail.value.length === 0) {
-            mailError.hidden = false;
-            mailError.textContent = 'Field required';
-            mail.style.borderColor = 'darkred';
+    const validateMail = (key, getError, e) => {
+        removeError(key, getError);
+        if (errorObjects[key].value.length === 0) {
+            applyError(key, getError, e);
+            getError.textContent = 'Field required';
         } else if (!validation.mail) {
-            mailError.hidden = false;
-            mailError.textContent = 'Format required: email@example.com';
-            mail.style.borderColor = 'darkred';
+            applyError(key, getError, e);
+            getError.textContent = 'Format required: email@example.com';
         } 
+    }
+
+    // validates activities 
+    const validActivities = e => {
+        for (let i=0; i<activities.length; i++) {
+            if (activities[i].checked) {
+                document.querySelector('.activitiesError').hidden = true;
+                return;
+            }
+        }
+        document.querySelector('.activitiesError').hidden = false;
+        e.preventDefault();
     }
 
     focusFirstInput();
@@ -272,40 +307,15 @@
     document.querySelector('.activities').addEventListener('change', e => {
         selectActivities();
         totalActivities();
-        isValid(e.target);
-        validated();
     });
 
     paymentSelect.addEventListener('change', e => {
         payment(e.target.value);
-        isValid(e.target);
-        validated();
     });
 
-    document.querySelector('#name').addEventListener("input", e => {
-        isValid(e.target);
-        validated();
-    });
-
-    mail.addEventListener("input", e => {
-        isValid(e.target);
-        validated();
-    });
-
-    document.querySelector('#cc-num').addEventListener("input", e => {
-        isValid(e.target);
-        validated();
-    });
-
-    document.querySelector('#zip').addEventListener("input", e => {
-        isValid(e.target);
-        validated();
-    });
-
-    document.querySelector('#cvv').addEventListener("input", e => {
-        isValid(e.target);
-        validated();
-    });
+    // errorObjects.mail.addEventListener("input", e => {
+    //     validateMail();
+    // });
 
     button.addEventListener('click', (e) => {
         submitErrors(e);
